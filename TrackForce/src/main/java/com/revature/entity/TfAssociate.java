@@ -62,7 +62,7 @@ public class TfAssociate implements java.io.Serializable {
 	@JoinColumn(name = "TF_USER_ID")
 	private TfUser user;
 	
-	@XmlElement
+	@XmlElement//Changed eager to lazy
 	@ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
 	@JoinColumn(name = "TF_BATCH_ID")
 	private TfBatch batch;

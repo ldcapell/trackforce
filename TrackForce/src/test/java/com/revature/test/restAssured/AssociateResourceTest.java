@@ -19,6 +19,7 @@ import com.revature.entity.TfClient;
 import com.revature.entity.TfEndClient;
 import com.revature.entity.TfMarketingStatus;
 import com.revature.entity.TfUser;
+import com.revature.resources.AssociateResource;
 import com.revature.services.AssociateService;
 import com.revature.services.JWTService;
 
@@ -39,9 +40,10 @@ public class AssociateResourceTest {
 	List<TfAssociate> associates;
 	String token;
 	TfAssociate associate;
+	AssociateResource aResource = new AssociateResource();
 	
-	int knownUserId1 = 4500;
-	int knownUserId2 = 4501;
+	int knownUserId1 = 64;//Used to be 4500, points to Edward
+	int knownUserId2 = 575;//Used to be 4501, points to Tommy
 
 	@BeforeClass
 	public void beforeClass() {
@@ -65,8 +67,9 @@ public class AssociateResourceTest {
 		associate.setMarketingStatus(ms);
 		associate.setEndClient(new TfEndClient());
 		associate.setBatch(new TfBatch());
-		associate.setId(876);
+		associate.setId(575); //Used to be 876
 		associate.setClient(new TfClient());
+		
 	}
 
 	/**
@@ -85,6 +88,7 @@ public class AssociateResourceTest {
 
 		given().header("Authorization", token).when().get(URL + "/allAssociates").then().assertThat().body("id",
 				hasSize(associates.size()));
+		aResource.getAllAssociates(token);
 	}
 
 	/**
@@ -99,6 +103,7 @@ public class AssociateResourceTest {
 		assertTrue(response.asString().contains("Unauthorized"));
 
 		given().header("Authorization", token).when().get(URL + "/notAURL").then().assertThat().statusCode(404);
+		
 	}
 
 	/**
@@ -112,20 +117,22 @@ public class AssociateResourceTest {
 	public void testGetAssociate1() {
 		Response response = given().header("Authorization", token).when().get(URL + "/" + knownUserId1).then().extract()
 				.response();
-
+		aResource.getAssociate(knownUserId1, token);
 		assertTrue(response.getStatusCode() == 200 || response.getStatusCode() == 204);
 		if (response.statusCode() == 200) {
 			assertTrue(response.contentType().equals("application/json"));
 		}
-
+		
 		response = given().header("Authorization", token).when().get(URL + "/" + knownUserId1).then().extract()
 				.response();
 		
 		given().header("Authorization", token).when().get(URL + "/" + knownUserId1).then().assertThat().body("firstName",
 				equalTo("Edward"));
-				
-		assertTrue(response.asString().contains("\"id\":3"));
-		assertTrue(response.asString().contains("\"name\":\"MAPPED: SELECTED\""));
+		
+		assertTrue(response.asString().contains("\"id\":4"));
+		System.out.println("Response String: " + response.asString());
+		assertTrue(response.asString().contains("\"name\":\"MAPPED: CONFIRMED\""));
+		
 	}
 
 	/**
@@ -158,7 +165,7 @@ public class AssociateResourceTest {
 	@Test(priority = 40, enabled = true)
 	public void testUpdateAssociate1() {
 		AssociateService service = new AssociateService();
-
+		System.out.println("Associate ID: " + associate.getId());
 		Response response = given().header("Authorization", token).contentType("application/json").body(service.getAssociate(associate.getId())).when().get(URL + "/" + knownUserId2).then().extract()
 				.response();
 		assertTrue(response.statusCode() == 200);
@@ -166,7 +173,7 @@ public class AssociateResourceTest {
 
 		assertTrue(response.asString().contains("Tom") && response.asString().contains("Jerry"));
 		
-		given().header("Authorization", token).when().get(URL + "/" + knownUserId2).then().assertThat().body("marketingStatus.id", equalTo(3));
+		given().header("Authorization", token).when().get(URL + "/" + knownUserId2).then().assertThat().body("marketingStatus.id", equalTo(4));
 	}
 
 	/**

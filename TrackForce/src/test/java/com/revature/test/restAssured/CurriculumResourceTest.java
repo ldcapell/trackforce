@@ -6,12 +6,14 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Matchers.contains;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNotNull;
 
 import java.io.IOException;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.revature.resources.CurriculumResource;
 import com.revature.services.JWTService;
 
 import io.restassured.response.Response;
@@ -29,6 +31,7 @@ public class CurriculumResourceTest {
 
 	String tokenAdmin;
 	String tokenAssociate;
+	CurriculumResource cResource = new CurriculumResource();
 
 	/**
 	 * Set up before any tests. Need to generate a token
@@ -63,6 +66,7 @@ public class CurriculumResourceTest {
 
 		given().header("Authorization", tokenAdmin).when().get(URL).then().assertThat().body("name", notNullValue());
 
+		assertNotNull(cResource.getAllCurriculums(tokenAdmin));
 	}
 
 	/**
@@ -80,6 +84,9 @@ public class CurriculumResourceTest {
 		given().header("Authorization", tokenAdmin).when().post(URL).then().assertThat().statusCode(405);
 
 		given().header("Authorization", tokenAssociate).when().get(URL).then().assertThat().statusCode(403);
+		
+		assertNotNull(cResource.getAllCurriculums(""));
+		assertNotNull(cResource.getAllCurriculums(tokenAssociate));
 	}
 	
 	/**
@@ -98,6 +105,8 @@ public class CurriculumResourceTest {
 
 		
 		given().header("Authorization", tokenAdmin).when().get(URL + "/unmapped/2").then().assertThat().body("id", hasSize(1));
+		
+		assertNotNull(cResource.getUnmappedInfo(tokenAdmin, 6));
 	}
 	
 	/**
@@ -116,5 +125,8 @@ public class CurriculumResourceTest {
 		given().header("Authorization", tokenAdmin).when().post(URL + "/unmapped/4").then().assertThat().statusCode(405);
 
 		given().header("Authorization", tokenAssociate).when().get(URL + "/unmapped/4").then().assertThat().statusCode(403);
+	
+		assertNotNull(cResource.getUnmappedInfo("", 3));
+		assertNotNull(cResource.getUnmappedInfo(tokenAssociate, 3));
 	}
 }

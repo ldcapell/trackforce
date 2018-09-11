@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.revature.entity.TfClient;
+import com.revature.resources.ClientResource;
 import com.revature.services.ClientService;
 import com.revature.services.JWTService;
 
@@ -32,6 +34,7 @@ public class ClientResourceTest {
 	ClientService cs = new ClientService();
 	List<TfClient> clients;
 	String token;
+	ClientResource cResource = new ClientResource();
 
 	/**
 	 * Set up before any tests. Need to generate a token and generate a list of
@@ -64,6 +67,8 @@ public class ClientResourceTest {
 
 		given().header("Authorization", token).when().get(URL).then().assertThat().body("name",
 				hasSize(clients.size()));
+		
+		assertNotNull(cResource.getAllClients(token));
 	}
 	
 	/**
@@ -79,5 +84,23 @@ public class ClientResourceTest {
 		given().header("Authorization", token).when().get(URL + "/notAURL").then().assertThat().statusCode(404);
 
 		given().header("Authorization", token).when().post(URL).then().assertThat().statusCode(405);
+	
+		cResource.getMappedClients();
+		cResource.getMappedAssociatesByClientId(1L);
+	}
+	
+	@Test(priority = 11)
+	public void testGetFirstFiftyClients() {
+		cResource.getFirstFiftyClients();
+	}
+	
+	@Test(priority = 12)
+	public void testGetMappedClients() {
+		cResource.getFirstFiftyClients();
+	}
+	
+	@Test(priority = 13)
+	public void testGetMappedAssociatesByClientId() {
+		cResource.getFirstFiftyClients();
 	}
 }
