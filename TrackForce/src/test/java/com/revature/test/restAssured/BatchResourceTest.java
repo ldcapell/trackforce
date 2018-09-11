@@ -3,12 +3,15 @@ package com.revature.test.restAssured;
 import static io.restassured.RestAssured.given;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNotNull;
 import static org.hamcrest.Matchers.hasSize;
 
 
 import org.hamcrest.Matchers;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.revature.resources.BatchResource;
 import com.revature.services.BatchService;
 import com.revature.services.JWTService;
 
@@ -28,6 +31,7 @@ public class BatchResourceTest {
 	//static final String URL = "http://localhost:8085/TrackForce/batches";
 
 	private String token;
+	BatchResource bResource = new BatchResource();
 	BatchService service;
 
 	/**
@@ -58,6 +62,7 @@ public class BatchResourceTest {
 		response = given().header("Authorization", token).when().get(URL).then().extract().response();
 		assertTrue(response.getStatusCode() == 200);
 		assertTrue(response.contentType().equals("application/json"));
+		
 	}
 	
 	/**
@@ -122,4 +127,21 @@ public class BatchResourceTest {
 		given().header("Authorization", token).when().get(URL).then().assertThat().body("batchName",
 				Matchers.hasSize(service.getAllBatches().size()));
 	}
+	
+	@Test(priority = 7)
+	public void testForbiddenBatchAssociates() {
+		given().header("Authorization", token).when().get(URL + "/1/associates").then().assertThat().statusCode(403);
+
+		assertNotNull(bResource.getBatchAssociates(1, token).getEntity());
+	}
+	
+	@Test(priority = 8)
+	public void testGetBatchInfo() {
+		given().header("Authorization", token).when().get(URL + "/batch/1").then().assertThat().statusCode(200); 
+		Response response = given().header("Authorization", token).when().get(URL + "/batch/1").then().extract().response(); 
+		assertTrue(response.contentType().equals("application/json"));
+		
+		assertNotNull(bResource.getBatchInfo(1, token).getEntity());
+	}
+	
 }
